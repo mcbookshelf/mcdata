@@ -9,7 +9,7 @@ apply plugin : "java"
 project.logger.lifecycle("Using Minecraft version: ${version}")
 
 ext {
-	javaMainClass = "net.gunivers.bookshelf.Extractor"
+	javaMainClass = "dev.mcbookshelf.mcdata.Extractor"
 }
 
 dependencies {

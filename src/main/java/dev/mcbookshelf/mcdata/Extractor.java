@@ -1,4 +1,4 @@
-package net.gunivers.bookshelf;
+package dev.mcbookshelf.mcdata;
 
 import java.io.IOException;
 import com.google.gson.JsonObject;
@@ -6,8 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.FileWriter;
 import net.minecraft.data.Main;
-import static net.gunivers.bookshelf.HitboxExtractor.generateBlockShapes;
-import static net.gunivers.bookshelf.BlockDataExtractor.generateBlockSounds;
+import static dev.mcbookshelf.mcdata.BlockExtractor.generateBlockData;
 
 public class Extractor {
 
@@ -25,8 +24,7 @@ public class Extractor {
             return;
         }
 
-        generateBlockShapes("generated/" + args[0] + "/blocks/", "shapes");
-        generateBlockSounds("generated/" + args[0] + "/blocks/", "data");
+        generateBlockData("generated/" + args[0] + "/v1/", "blocks");
     }
 
     /**

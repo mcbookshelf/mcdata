@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Extractor" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="net.gunivers.bookshelf.Extractor" />
+    <option name="MAIN_CLASS_NAME" value="dev.mcbookshelf.mcdata.Extractor" />
     <module name="Bookshelf-McData.main" />
-    <option name="PROGRAM_PARAMETERS" value="1.21.2-pre3" />
+    <option name="PROGRAM_PARAMETERS" value="1.21.7" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="net.gunivers.bookshelf.*" />
+        <option name="PATTERN" value="dev.mcbookshelf.mcdata.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

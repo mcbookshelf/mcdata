@@ -45,7 +45,7 @@ jobs:
           git checkout --orphan temp
           cp -r "generated/$VERSION/"* .
           git clean -fdX
-          rm -r .github/ src/ gradle/ .gitignore .gitattributes build.gradle gradle.properties gradlew gradlew.bat settings.gradle .run
+          rm -rf .github/ src/ gradle/ .gitignore .gitattributes build.gradle gradle.properties gradlew gradlew.bat settings.gradle .run
           git add .
           git commit -m "🚀 Update generated contents for $VERSION"
 

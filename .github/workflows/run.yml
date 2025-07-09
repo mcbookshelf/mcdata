@@ -1,12 +1,23 @@
-name: 'Run'
+name: Run
 
 on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+      branch:
+        type: string
+        required: true
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version'
         type: string
         required: true
+      branch:
+        type: string
+        required: false
+        default: v1
 
 permissions:
   contents: write
@@ -16,6 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
       - uses: fregante/setup-git-user@v2
       - uses: actions/setup-java@v2
         with:
@@ -31,5 +44,5 @@ jobs:
           rm -r .github/ src/ gradle/ .gitignore .gitattributes build.gradle gradle.properties gradlew gradlew.bat settings.gradle .run
           git add .
           git commit -m "🚀 Update generated contents for ${{ inputs.version }}"
-          git tag -f "${{ inputs.version }}"
+          git tag -f "v1/${{ inputs.version }}"
           git push origin "${{ inputs.version }}" --force

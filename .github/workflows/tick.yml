@@ -1,8 +1,8 @@
-name: 'Tick'
+name: Tick
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: 0 * * * *
   workflow_dispatch:
 
 permissions:
@@ -12,36 +12,47 @@ jobs:
   check:
     runs-on: ubuntu-latest
     outputs:
-      id: ${{ steps.check.outputs.id }}
+      update: ${{ steps.check.outputs.update }}
+      latest_version: ${{ steps.check.outputs.latest_version }}
     steps:
-      - id: check
-        name: Check for Minecraft updates
-        uses: ByMartrixX/minecraft-update-check-action@v0
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
-          version-manifest-url: 'https://piston-meta.mojang.com/mc/game/version_manifest_v2.json'
-          cache-base-key: 'mc-manifest-'
+          path: fabric-version-cache
+          key: fabric-version-cache-key-${{ runner.os }}-v1
+      - name: Fetch latest Fabric game version
+        id: fetch
+        run: |
+          mkdir -p fabric-version-cache
+          latest=$(curl -s https://meta.fabricmc.net/v2/versions/game | jq -r '.[0].version')
+          echo "latest_version=$latest" >> "$GITHUB_OUTPUT"
+      - name: Check for Minecraft updates
+        id: check
+        run: |
+          cached_file="fabric-version-cache/latest_version.txt"
+          latest="${{ steps.fetch.outputs.latest_version }}"
+          update="false"
+
+          if [[ -f "$cached_file" ]]; then
+            cached=$(cat "$cached_file")
+            if [[ "$cached" != "$latest" ]]; then
+              update="true"
+            fi
+          else
+            update="true"
+          fi
+
+          echo "$latest" > "$cached_file"
+          echo "latest_version=$latest" >> "$GITHUB_OUTPUT"
+          echo "update=$update" >> "$GITHUB_OUTPUT"
 
   update:
     needs: check
-    if: ${{ needs.check.outputs.id != '' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: fregante/setup-git-user@v2
-      - uses: actions/setup-java@v2
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-      - uses: gradle/gradle-build-action@v2
-      - run: |
-          chmod +x ./gradlew
-          ./gradlew build -Pversion=${{ needs.check.outputs.id }}
-          ./gradlew run -Pversion=${{ needs.check.outputs.id }}
-          git checkout --orphan temp
-          cp -r "generated/${{ needs.check.outputs.id }}/"* .
-          git clean -fdX
-          rm -r .github/ src/ gradle/ .gitignore .gitattributes build.gradle gradle.properties gradlew gradlew.bat settings.gradle .run
-          git add .
-          git commit -m "🚀 Update generated contents for ${{ needs.check.outputs.id }}"
-          git tag -f "${{ needs.check.outputs.id }}"
-          git push origin "${{ needs.check.outputs.id }}" --force
+    if: ${{ needs.check.outputs.update == 'true' }}
+    strategy:
+      matrix:
+        branch: [v1, legacy]
+    uses: ./.github/workflows/run.yml
+    with:
+      branch: ${{ matrix.branch }}
+      version: ${{ needs.check.outputs.latest_version }}

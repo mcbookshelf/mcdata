@@ -1,12 +1,13 @@
-# Bookshelf McData
+# mcdata
 
 > [!WARNING]
 > This branch is the **legacy version** of the data, kept only for compatibility purposes.  
 > We strongly recommend moving to and using the **v1 version** instead for the latest features and updates.
 
-> A version-controlled repository of Minecraft's extracted block shape data for use with [Bookshelf](https://github.com/mcbookshelf/Bookshelf).
+> A version-controlled archive of extracted Minecraft data for use with [Bookshelf](https://github.com/mcbookshelf/bookshelf).
 
 ## Overview
+
 This repository extracts block shapes from Minecraft into JSON files for each game version.
 Each commit represents a different Minecraft version, tagged as `<version`.
 

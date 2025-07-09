@@ -1,27 +1,26 @@
-# Bookshelf McData
-> A version-controlled repository of Minecraft's extracted block shape data for use with [Bookshelf](https://github.com/mcbookshelf/Bookshelf).
+# mcdata
+
+> A version-controlled archive of extracted Minecraft data for use with [Bookshelf](https://github.com/mcbookshelf/bookshelf).
 
 ## Overview
-This repository extracts block shapes and block data from Minecraft into JSON files for each game version.
-Each commit represents a different Minecraft version, tagged as `<version>`.
 
-You can view the extracted block shapes for a specific version by accessing the following URL (replace <version> with the Minecraft version you're interested in):
+This repository contains data extracted from various versions of Minecraft.  
+Each Git tag corresponds to a specific Minecraft version and includes only the generated data for that version.
 
-```
-https://raw.githubusercontent.com/mcbookshelf/Bookshelf-McData/<version>/blocks/shapes.min.json
-```
+## Usage
 
-Concerning the block data, before 1.21.5 only sounds are available:
+You can access the extracted files directly via GitHub’s raw URLs:
 
 ```
-https://raw.githubusercontent.com/Gunivers/Bookshelf-McData/<version>/blocks/sounds.min.json
+https://raw.githubusercontent.com/mcbookshelf/mcdata/v1/<version>/blocks/data.min.json
 ```
 
-In and after 1.21.5, more data are available such as hardness, blast resistance, etc.:
+Replace `<version>` with the desired Minecraft version, e.g. `1.21.7`.
 
-```
-https://raw.githubusercontent.com/Gunivers/Bookshelf-McData/<version>/blocks/data.min.json
-```
+> [!NOTE]
+> The `v1` branch and its data format have been available since Minecraft `1.21.6`.
+> We strongly recommend using this version for the latest and most stable data.
+> For older Minecraft versions, please refer to our legacy builds, which use tags without the `v1/` prefix.
 
 ## Credits
 This project has taken inspiration from [Aeldrion/IrisDataGen](https://github.com/Aeldrion/IrisDataGen) and [misode/mcmeta](https://github.com/misode/mcmeta).

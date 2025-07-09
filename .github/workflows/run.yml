@@ -32,17 +32,28 @@ jobs:
       - uses: fregante/setup-git-user@v2
       - uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
-          java-version: '21'
-      - run: |
+          distribution: temurin
+          java-version: 21
+      - name: Run Data Generators
+        env:
+          BRANCH: ${{ inputs.branch }}
+          VERSION: ${{ inputs.version }}
+        run: |
           chmod +x ./gradlew
-          ./gradlew build -Pversion=${{ inputs.version }}
-          ./gradlew run -Pversion=${{ inputs.version }}
+          ./gradlew build -Pversion="$VERSION"
+          ./gradlew run -Pversion="$VERSION"
           git checkout --orphan temp
-          cp -r "generated/${{ inputs.version }}/"* .
+          cp -r "generated/$VERSION/"* .
           git clean -fdX
           rm -r .github/ src/ gradle/ .gitignore .gitattributes build.gradle gradle.properties gradlew gradlew.bat settings.gradle .run
           git add .
-          git commit -m "🚀 Update generated contents for ${{ inputs.version }}"
-          git tag -f "v1/${{ inputs.version }}"
-          git push origin "${{ inputs.version }}" --force
+          git commit -m "🚀 Update generated contents for $VERSION"
+
+          if [ "$BRANCH" = "legacy" ]; then
+            REF="$VERSION"
+          else
+            REF="$BRANCH/$VERSION"
+          fi
+
+          git tag -f "$REF"
+          git push origin "refs/tags/$REF" --force

@@ -24,7 +24,7 @@ public class Extractor {
             return;
         }
 
-        generateBlockData("generated/" + args[0] + "/v1/", "blocks");
+        generateBlockData("generated/" + args[0] + "/blocks/", "data");
     }
 
     /**

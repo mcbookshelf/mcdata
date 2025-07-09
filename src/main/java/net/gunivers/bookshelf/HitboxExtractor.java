@@ -1,6 +1,5 @@
 package net.gunivers.bookshelf;
 
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -61,6 +60,7 @@ public class HitboxExtractor {
             stateJson.add("properties", properties);
 
             net.minecraft.world.phys.shapes.VoxelShape shape = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
+            net.minecraft.world.phys.shapes.VoxelShape collisionShape = state.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
 
             if (shape.toString().equals(state.getShape(EmptyBlockGetter.INSTANCE, new BlockPos(1, 0, 1)).toString())) {
                 stateJson.addProperty("has_offset", false);
@@ -83,10 +83,12 @@ public class HitboxExtractor {
                 }
 
                 shape = shape.move(-offset.x, -offset.y, -offset.z);
+                collisionShape = collisionShape.move(-offset.x, -offset.y, -offset.z);
                 stateJson.addProperty("has_offset", true);
             }
             
             stateJson.add("shape", new VoxelShape(shape).optimize().toJson());
+            stateJson.add("collision_shape", new VoxelShape(collisionShape).optimize().toJson());
             states.add(stateJson);
         });
 

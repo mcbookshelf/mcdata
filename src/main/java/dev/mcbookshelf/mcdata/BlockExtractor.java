@@ -3,54 +3,47 @@ package dev.mcbookshelf.mcdata;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static dev.mcbookshelf.mcdata.Extractor.writeJsonToFile;
-
 public class BlockExtractor {
-    public static void generateBlockData(String path, String fileName) throws IOException {
+    public static void generateBlockData(Path output) throws IOException {
         System.out.println("Generating block data...");
-        Files.createDirectories(Path.of(path));
+        Files.createDirectories(output);
+
         JsonObject data = extractBlocks();
-        writeJsonToFile(path + fileName + ".json", data, true);
-        writeJsonToFile(path + fileName + ".min.json", data, false);
+        JsonUtils.writeJsonToFile(output.resolve("data.json"), data, true);
+        JsonUtils.writeJsonToFile(output.resolve("data.min.json"), data, false);
     }
 
     private static JsonObject extractBlocks() {
         JsonObject data = new JsonObject();
+        Registry<Block> blockRegistry = BuiltInRegistries.BLOCK;
 
-        for (Field blockField : Blocks.class.getFields()) {
-            try {
-                Block block = (Block) blockField.get(null);
-                String blockID = block.toString().substring(6, block.toString().length() - 1);
-                data.add(blockID, extractBlockData(block));
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
+        for (var entry : blockRegistry.entrySet()) {
+            ResourceLocation id = entry.getKey().location();
+            Block block = entry.getValue();
+            data.add(id.toString(), extractBlockData(block));
         }
         return data;
     }

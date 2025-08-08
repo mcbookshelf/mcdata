@@ -1,35 +1,25 @@
 plugins {
-	id 'fabric-loom' version '1.8-SNAPSHOT'
-	id 'maven-publish'
-	id "application"
+	id 'fabric-loom' version '1.11-SNAPSHOT'
+	id 'application'
+	id 'java'
 }
-
-apply plugin : "java"
 
 project.logger.lifecycle("Using Minecraft version: ${version}")
-
-ext {
-	javaMainClass = "dev.mcbookshelf.mcdata.Extractor"
-}
 
 dependencies {
 	minecraft "com.mojang:minecraft:${version}"
 	mappings loom.officialMojangMappings()
 }
 
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
-}
-
 java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
 	withSourcesJar()
-
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
 }
 
 application {
-	mainClassName = javaMainClass
+	mainClass = project.property("mainClass")
 }
 
 tasks.withType(JavaExec.class).configureEach {

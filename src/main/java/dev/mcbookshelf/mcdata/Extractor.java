@@ -1,42 +1,25 @@
 package dev.mcbookshelf.mcdata;
 
 import java.io.IOException;
-import com.google.gson.JsonObject;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import java.io.FileWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import net.minecraft.SharedConstants;
 import net.minecraft.data.Main;
-import static dev.mcbookshelf.mcdata.BlockExtractor.generateBlockData;
 
 public class Extractor {
 
     public static void main(String[] args) throws IOException {
-        if (args.length < 1) {
-            System.err.println("Usage: java Extractor <minecraft_version>");
-            return;
-        }
-
         try {
             Main.main(new String[] { "--validate" });
         } catch (Exception e) {
-            System.out.println("Main call of the Minecraft client's init failed.");
+            System.err.println("Failed to initialize Minecraft data generator.");
             e.printStackTrace();
-            return;
+            System.exit(1);
         }
 
-        generateBlockData("generated/" + args[0] + "/blocks/", "data");
-    }
-
-    /**
-     * Writes a JsonObject to a JSON file.
-     */
-    public static void writeJsonToFile(String fileName, JsonObject data, boolean prettyPrint) {
-        Gson gson = prettyPrint ? new GsonBuilder().setPrettyPrinting().create() : new Gson();
-
-        try (FileWriter writer = new FileWriter(fileName)) {
-            gson.toJson(data, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String version = SharedConstants.getCurrentVersion().name();
+        Path output = Paths.get("generated", version);
+        BlockExtractor.generateBlockData(output.resolve("blocks"));
     }
 }

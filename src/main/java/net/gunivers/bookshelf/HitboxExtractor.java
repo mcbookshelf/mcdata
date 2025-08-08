@@ -4,14 +4,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.phys.Vec3;
@@ -32,16 +33,14 @@ public class HitboxExtractor {
      */
     private static JsonObject extractBlockShapes() {
         JsonObject blocksJson = new JsonObject();
+        Registry<Block> blockRegistry = BuiltInRegistries.BLOCK;
 
-        for (Field blockField : Blocks.class.getFields()) {
-            try {
-                Block block = (Block) blockField.get(null);
-                String blockID = block.toString().substring(6, block.toString().length() - 1);
-                blocksJson.add(blockID, extractSingleBlockShapes(block));
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
+        for (var entry : blockRegistry.entrySet()) {
+            ResourceLocation id = entry.getKey().location();
+            Block block = entry.getValue();
+            blocksJson.add(id.toString(), extractSingleBlockShapes(block));
         }
+
         return blocksJson;
     }
 
@@ -54,7 +53,7 @@ public class HitboxExtractor {
         block.getStateDefinition().getPossibleStates().forEach(state -> {
             JsonObject stateJson = new JsonObject();
             JsonObject properties = new JsonObject();
-    
+
             for (Map.Entry<Property<?>, Comparable<?>> entry : state.getValues().entrySet())
                 properties.addProperty(entry.getKey().getName(), String.valueOf(entry.getValue()).toLowerCase());
             stateJson.add("properties", properties);
@@ -86,7 +85,7 @@ public class HitboxExtractor {
                 collisionShape = collisionShape.move(-offset.x, -offset.y, -offset.z);
                 stateJson.addProperty("has_offset", true);
             }
-            
+
             stateJson.add("shape", new VoxelShape(shape).optimize().toJson());
             stateJson.add("collision_shape", new VoxelShape(collisionShape).optimize().toJson());
             states.add(stateJson);

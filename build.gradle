@@ -1,10 +1,9 @@
 plugins {
-	id 'fabric-loom' version '1.8-SNAPSHOT'
+	id 'fabric-loom' version '1.11-SNAPSHOT'
 	id 'maven-publish'
 	id "application"
+	id "java"
 }
-
-apply plugin : "java"
 
 project.logger.lifecycle("Using Minecraft version: ${version}")
 
@@ -29,7 +28,7 @@ java {
 }
 
 application {
-	mainClassName = javaMainClass
+	mainClass = javaMainClass
 }
 
 tasks.withType(JavaExec.class).configureEach {

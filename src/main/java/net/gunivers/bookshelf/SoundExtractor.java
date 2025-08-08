@@ -2,11 +2,12 @@ package net.gunivers.bookshelf;
 
 import static net.gunivers.bookshelf.Extractor.writeJsonToFile;
 import com.google.gson.JsonObject;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -24,14 +25,13 @@ public class SoundExtractor {
 
     private static JsonObject extractBlocksSounds() {
         JsonObject blocksJson = new JsonObject();
-        for (Field blockField : Blocks.class.getFields()) {
-            try {
-                Block block = (Block) blockField.get(null);
-                String blockID = block.toString().substring(6, block.toString().length() - 1);
-                blocksJson.add(blockID, extractBlockSounds(block));
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
+        Registry<Block> blockRegistry = BuiltInRegistries.BLOCK;
+
+        for (var entry : blockRegistry.entrySet()) {
+            ResourceLocation id = entry.getKey().location();
+            Block block = entry.getValue();
+            blocksJson.add(id.toString(), extractBlockSounds(block));
+
         }
         return blocksJson;
     }

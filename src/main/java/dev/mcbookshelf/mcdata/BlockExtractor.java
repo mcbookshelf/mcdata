@@ -6,7 +6,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -41,11 +40,10 @@ public class BlockExtractor {
         JsonObject data = new JsonObject();
         Registry<Block> blockRegistry = BuiltInRegistries.BLOCK;
 
-        for (var entry : blockRegistry.entrySet()) {
-            ResourceLocation id = entry.getKey().location();
-            Block block = entry.getValue();
-            data.add(id.toString(), extractBlockData(block));
-        }
+        blockRegistry.listElements().forEach((reference) ->
+            data.add(reference.getRegisteredName(), extractBlockData(reference.value()))
+        );
+
         return data;
     }
 

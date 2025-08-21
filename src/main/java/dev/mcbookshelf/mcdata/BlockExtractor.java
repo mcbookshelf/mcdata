@@ -2,6 +2,7 @@ package dev.mcbookshelf.mcdata;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -67,16 +68,29 @@ public class BlockExtractor {
         data.addProperty("instrument", state.instrument().getSoundEvent().getRegisteredName());
 
         data.add("sounds", extractBlockSounds(state.getSoundType()));
-        data.add("default_properties", extractBlockProperties(state));
+        data.add("default_properties", extractStateProperties(state));
+        data.add("possible_properties", extractBlockProperties(block));
+
         data.add("states", extractBlockStates(block));
 
         return data;
     }
 
-    private static JsonObject extractBlockProperties(BlockState state) {
+    private static JsonObject extractStateProperties(BlockState state) {
         JsonObject properties = new JsonObject();
         for (Map.Entry<Property<?>, Comparable<?>> entry : state.getValues().entrySet())
             properties.addProperty(entry.getKey().getName(), String.valueOf(entry.getValue()).toLowerCase());
+        return properties;
+    }
+
+    private static JsonObject extractBlockProperties(Block block) {
+        JsonObject properties = new JsonObject();
+        for (Property<?> property : block.getStateDefinition().getProperties()) {
+            JsonArray jsonArray = new JsonArray();
+            for(Comparable<?> comparable : property.getPossibleValues())
+                jsonArray.add(Util.getPropertyName(property, comparable));
+            properties.add(property.getName(), jsonArray);
+        }
         return properties;
     }
 
@@ -127,7 +141,7 @@ public class BlockExtractor {
 
             data.add("shape", new dev.mcbookshelf.mcdata.VoxelShape(shape).optimize().toJson());
             data.add("collision_shape", new dev.mcbookshelf.mcdata.VoxelShape(collisionShape).optimize().toJson());
-            data.add("properties", extractBlockProperties(state));
+            data.add("properties", extractStateProperties(state));
 
             states.add(data);
         });

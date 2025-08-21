@@ -7,8 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LightBlock;
@@ -17,11 +15,11 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -103,18 +101,16 @@ public class BlockExtractor {
     }
 
     private static JsonArray extractBlockStates(Block block) {
-        return extractBlockStates(block, block instanceof LightBlock ? new EntityCollisionContext(
-                false,
-                false,
-                -Double.MAX_VALUE,
-                ItemStack.EMPTY,
-                (fluidState) -> false,
-                null
-        ) {
-            public boolean isHoldingItem(Item item) {
-                return true;
-            }
-        } : CollisionContext.empty());
+        CollisionContext empty = CollisionContext.empty();
+        CollisionContext light = (CollisionContext) Proxy.newProxyInstance(
+                CollisionContext.class.getClassLoader(),
+                new Class<?>[]{CollisionContext.class},
+                (proxy, method, args) -> {
+                    if (method.getName().equals("isHoldingItem")) return true;
+                    return method.invoke(empty, args);
+                }
+        );
+        return extractBlockStates(block, block instanceof LightBlock ? light : empty);
     }
 
     private static JsonArray extractBlockStates(Block block, CollisionContext ctx) {

@@ -51,6 +51,7 @@ public class BlockExtractor {
         VoxelShape shape = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
         VoxelShape shape2 = state.getShape(EmptyBlockGetter.INSTANCE, new BlockPos(1, 0, 1));
 
+        data.addProperty("item", block.asItem().toString());
         data.addProperty("can_occlude", state.canOcclude());
         data.addProperty("has_shape_offset", !shape.toString().equals(shape2.toString()));
         data.addProperty("has_visual_offset", state.hasOffsetFunction());

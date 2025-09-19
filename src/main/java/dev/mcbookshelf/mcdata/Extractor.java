@@ -18,7 +18,7 @@ public class Extractor {
             System.exit(1);
         }
 
-        String version = SharedConstants.getCurrentVersion().name();
+        String version = SharedConstants.getCurrentVersion().id();
         Path output = Paths.get("generated", version);
         BlockExtractor.generateBlockData(output.resolve("blocks"));
     }

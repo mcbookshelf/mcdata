@@ -19,6 +19,7 @@ jobs:
       - name: Fetch latest Fabric game version
         id: fetch
         run: |
+          mkdir -p fabric-version-cache
           latest=$(curl -s https://meta.fabricmc.net/v2/versions/game | jq -r '.[0].version')
           echo "latest_version=$latest" >> "$GITHUB_OUTPUT"
       - name: Try restore cache (detect existing version)

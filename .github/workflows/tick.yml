@@ -12,41 +12,21 @@ jobs:
   check:
     runs-on: ubuntu-latest
     outputs:
-      update: ${{ steps.compare.outputs.update }}
+      update: ${{ steps.cache.outputs.cache-hit != 'true' }}
       latest_version: ${{ steps.fetch.outputs.latest_version }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: fabric-version-cache
-          key: fabric-version-cache-key-${{ runner.os }}-v1
       - name: Fetch latest Fabric game version
         id: fetch
         run: |
-          mkdir -p fabric-version-cache
           latest=$(curl -s https://meta.fabricmc.net/v2/versions/game | jq -r '.[0].version')
           echo "latest_version=$latest" >> "$GITHUB_OUTPUT"
-      - name: Check for Minecraft updates
-        id: compare
-        run: |
-          cached_file="fabric-version-cache/latest_version.txt"
-          latest="${{ steps.fetch.outputs.latest_version }}"
-          update="false"
-
-          if [[ -f "$cached_file" ]]; then
-            cached=$(cat "$cached_file")
-            if [[ "$cached" != "$latest" ]]; then
-              update="true"
-              echo "New version found: $latest (was $cached)"
-            else
-              echo "No update needed. Current version is $latest."
-            fi
-          else
-            update="true"
-          fi
-
-          echo "$latest" > "$cached_file"
-          echo "update=$update" >> "$GITHUB_OUTPUT"
+      - name: Try restore cache (detect existing version)
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: fabric-version-cache
+          key: fabric-version-cache-key-${{ runner.os }}-${{ steps.fetch.outputs.latest_version }}
 
   update:
     needs: check

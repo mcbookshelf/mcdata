@@ -11,7 +11,7 @@ import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.EmptyBlockGetter;
@@ -36,7 +36,7 @@ public class HitboxExtractor {
         Registry<Block> blockRegistry = BuiltInRegistries.BLOCK;
 
         for (var entry : blockRegistry.entrySet()) {
-            ResourceLocation id = entry.getKey().location();
+            Identifier id = entry.getKey().identifier();
             Block block = entry.getValue();
             blocksJson.add(id.toString(), extractSingleBlockShapes(block));
         }

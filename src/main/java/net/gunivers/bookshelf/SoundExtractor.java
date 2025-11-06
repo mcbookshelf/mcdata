@@ -4,7 +4,7 @@ import static net.gunivers.bookshelf.Extractor.writeJsonToFile;
 import com.google.gson.JsonObject;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class SoundExtractor {
         Registry<Block> blockRegistry = BuiltInRegistries.BLOCK;
 
         for (var entry : blockRegistry.entrySet()) {
-            ResourceLocation id = entry.getKey().location();
+            Identifier id = entry.getKey().identifier();
             Block block = entry.getValue();
             blocksJson.add(id.toString(), extractBlockSounds(block));
 

@@ -15,7 +15,7 @@ jobs:
       update: ${{ steps.cache.outputs.cache-hit != 'true' }}
       latest_version: ${{ steps.fetch.outputs.latest_version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Fetch latest Fabric game version
         id: fetch
         run: |
@@ -24,7 +24,7 @@ jobs:
           echo "latest_version=$latest" >> "$GITHUB_OUTPUT"
       - name: Try restore cache (detect existing version)
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: fabric-version-cache
           key: fabric-version-cache-key-${{ runner.os }}-${{ steps.fetch.outputs.latest_version }}

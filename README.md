@@ -1,0 +1,21 @@
+# mcdata
+
+> [!WARNING]
+> This branch is the **legacy version** of the data, kept only for compatibility purposes.  
+> We strongly recommend moving to and using the **v1 version** instead for the latest features and updates.
+
+> A version-controlled archive of extracted Minecraft data for use with [Bookshelf](https://github.com/mcbookshelf/bookshelf).
+
+## Overview
+
+This repository extracts block shapes from Minecraft into JSON files for each game version.
+Each commit represents a different Minecraft version, tagged as `<version`.
+
+You can view the extracted block shapes for a specific version by accessing the following URL (replace <version> with the Minecraft version you're interested in):
+
+```
+https://raw.githubusercontent.com/mcbookshelf/mcdata/<version>/blocks/shapes.min.json
+```
+
+## Credits
+This project has taken inspiration from [Aeldrion/IrisDataGen](https://github.com/Aeldrion/IrisDataGen) and [misode/mcmeta](https://github.com/misode/mcmeta).

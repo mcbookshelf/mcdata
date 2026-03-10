@@ -54,8 +54,7 @@ public class HitboxExtractor {
             JsonObject stateJson = new JsonObject();
             JsonObject properties = new JsonObject();
 
-            for (Map.Entry<Property<?>, Comparable<?>> entry : state.getValues().entrySet())
-                properties.addProperty(entry.getKey().getName(), String.valueOf(entry.getValue()).toLowerCase());
+            state.getValues().forEach(v -> properties.addProperty(v.property().getName(), v.valueName()));
             stateJson.add("properties", properties);
 
             net.minecraft.world.phys.shapes.VoxelShape shape = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
@@ -64,7 +63,7 @@ public class HitboxExtractor {
             if (shape.toString().equals(state.getShape(EmptyBlockGetter.INSTANCE, new BlockPos(1, 0, 1)).toString())) {
                 stateJson.addProperty("has_offset", false);
             } else {
-                Vec3 offset = null;
+                Vec3 offset = new Vec3(0, 0, 0);
                 try {
                     Method method = getMethod(state.getClass(), "getOffset");
                     if (method != null) {

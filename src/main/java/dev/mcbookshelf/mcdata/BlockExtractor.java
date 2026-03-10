@@ -75,8 +75,7 @@ public class BlockExtractor {
 
     private static JsonObject extractStateProperties(BlockState state) {
         JsonObject properties = new JsonObject();
-        for (Map.Entry<Property<?>, Comparable<?>> entry : state.getValues().entrySet())
-            properties.addProperty(entry.getKey().getName(), String.valueOf(entry.getValue()).toLowerCase());
+        state.getValues().forEach(v -> properties.addProperty(v.property().getName(), v.valueName()));
         return properties;
     }
 

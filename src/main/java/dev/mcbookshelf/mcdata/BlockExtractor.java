@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Util;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LightBlock;
@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 public class BlockExtractor {
     public static void generateBlockData(Path output) throws IOException {
@@ -131,7 +130,7 @@ public class BlockExtractor {
 
             data.addProperty("luminance", state.getLightEmission());
             data.addProperty("is_conductive", state.isRedstoneConductor(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
-            data.addProperty("is_spawnable", state.isValidSpawn(EmptyBlockGetter.INSTANCE, BlockPos.ZERO, EntityType.MARKER));
+            data.addProperty("is_spawnable", state.isValidSpawn(EmptyBlockGetter.INSTANCE, BlockPos.ZERO, EntityTypes.MARKER));
 
             data.add("shape", new dev.mcbookshelf.mcdata.VoxelShape(shape).optimize().toJson());
             data.add("collision_shape", new dev.mcbookshelf.mcdata.VoxelShape(collisionShape).optimize().toJson());

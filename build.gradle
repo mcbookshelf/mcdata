@@ -6,11 +6,17 @@ plugins {
 project.logger.lifecycle("Using Minecraft version: ${version}")
 
 application {
-	mainClass = "dev.mcbookshelf.mcdata.Extractor"
+	mainClass = "dev.mcbookshelf.mcdata.Main"
 }
 
 dependencies {
+    compileOnly "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.bytebuddy:byte-buddy:1.18.+"
 	minecraft "com.mojang:minecraft:${version}"
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/mcdata.accesswidener")
 }
 
 java {
@@ -21,6 +27,10 @@ java {
 
 	sourceCompatibility = JavaVersion.VERSION_25
 	targetCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.withType(JavaExec).configureEach {
+    systemProperty "joml.nounsafe", "true"
 }
 
 tasks.withType(JavaExec.class).configureEach {

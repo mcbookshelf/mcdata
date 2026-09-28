@@ -7,7 +7,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.fish.Pufferfish;
 import net.minecraft.world.entity.animal.fish.Salmon;
+import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.decoration.BlockAttachedEntity;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.Zoglin;
@@ -15,6 +17,7 @@ import net.minecraft.world.entity.monster.cubemob.AbstractCubeMob;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.io.IOException;
@@ -46,9 +49,16 @@ public class EntityExtractor {
     }
 
     private static JsonObject extractEntityData(Level level, EntityType<?> type, JsonObject data) {
-        Entity entity = type.create(level, EntitySpawnReason.COMMAND);
+        Entity entity = type == EntityTypes.PLAYER ? PlayerStub.create(level) : type.create(level, EntitySpawnReason.COMMAND);
 
-        if (entity == null || hasUnsupportedDimensions(entity)) {
+        if (entity == null) {
+            return data;
+        }
+
+        JsonObject flags = extractFlags(entity);
+
+        if (entity instanceof Player || hasUnsupportedDimensions(entity)) {
+            data.asMap().putAll(flags.asMap());
             return data;
         }
 
@@ -71,7 +81,20 @@ public class EntityExtractor {
             variants.forEach(e -> e.getAsJsonObject().remove("poses"));
         }
         data.add("dimensions", variants);
+        data.asMap().putAll(flags.asMap());
         return data;
+    }
+
+    private static JsonObject extractFlags(Entity entity) {
+        entity.setPos(0, entity.level().getMinY() - 64, 0);
+
+        return extra(
+            "living", entity instanceof LivingEntity,
+            "pickable", entity.isPickable(),
+            "pushable", entity.isPushable(),
+            "collidable", entity instanceof HappyGhast || entity.canBeCollidedWith(null),
+            "attached", entity instanceof BlockAttachedEntity
+        );
     }
 
     private static boolean hasUnsupportedDimensions(Entity entity) {

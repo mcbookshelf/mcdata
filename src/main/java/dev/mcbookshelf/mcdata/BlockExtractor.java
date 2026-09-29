@@ -9,7 +9,6 @@ import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,12 +16,10 @@ import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidIds;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
-import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -98,26 +95,13 @@ public class BlockExtractor {
     }
 
     private static JsonArray extractBlockStates(Block block, JsonArray states) {
-        CollisionContext empty = CollisionContext.empty();
-        CollisionContext light = (CollisionContext) Proxy.newProxyInstance(
-                CollisionContext.class.getClassLoader(),
-                new Class<?>[]{CollisionContext.class},
-                (_, method, args) -> {
-                    if (method.getName().equals("isHoldingItem")) return true;
-                    return method.invoke(empty, args);
-                }
-        );
-        return extractBlockStates(block, states, block instanceof LightBlock ? light : empty);
-    }
-
-    private static JsonArray extractBlockStates(Block block, JsonArray states, CollisionContext ctx) {
         block.properties().offsetType(BlockBehaviour.OffsetType.NONE);
         block.getStateDefinition().getPossibleStates().forEach(state -> {
             JsonObject data = new JsonObject();
 
-            VoxelShape shape = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO, ctx);
-            VoxelShape shape2 = state.getShape(EmptyBlockGetter.INSTANCE, new BlockPos(1, 0, 1), ctx);
-            VoxelShape collisionShape = state.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO, ctx);
+            VoxelShape shape = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
+            VoxelShape shape2 = state.getShape(EmptyBlockGetter.INSTANCE, new BlockPos(1, 0, 1));
+            VoxelShape collisionShape = state.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
 
             if (!shape.toString().equals(shape2.toString())) {
                 Vec3 offset = state.getOffset(BlockPos.ZERO);

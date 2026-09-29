@@ -58,7 +58,7 @@ Each entry of `states` has:
 
 Shapes are lists of boxes `[minX, minY, minZ, maxX, maxY, maxZ]`, in blocks, relative to the block's corner. Boxes may overlap, and coordinates can go outside `0`–`1` (fence collision reaches `1.5`).
 When `has_shape_offset` is true, shapes are given without the offset.
-Shapes are evaluated with no entity context, except for the `light` block, whose shape is the one seen while holding a light.
+Shapes are evaluated with no entity context.
 
 ## Entity data
 

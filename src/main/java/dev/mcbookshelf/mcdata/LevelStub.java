@@ -48,7 +48,7 @@ public abstract class LevelStub extends Level {
     }
 
     public LevelStub(RegistryAccess.Frozen registries) {
-        super(LEVEL_DATA, Level.OVERWORLD, registries, dimensionType(registries), false, false, 0L, 0);
+        super(LEVEL_DATA, Level.OVERWORLD, registries, dimensionType(registries), false, false, 0);
     }
 
     @Override public ChunkSource getChunkSource() {return CHUNK_SOURCE;}
@@ -57,7 +57,7 @@ public abstract class LevelStub extends Level {
     @Override public ClientClockManager clockManager() {return new ClientClockManager();}
     @Override public FeatureFlagSet enabledFeatures() {return FeatureFlags.REGISTRY.allFlags();}
     @Override public EnvironmentAttributeSystem environmentAttributes() {return EnvironmentAttributeSystem.builder().addDefaultLayers(this).build();}
-    @Override public Holder<Biome> getUncachedNoiseBiome(int quartX, int quartY, int quartZ) {return registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);}
+    @Override public Holder<Biome> getUncachedBiome(int quartX, int quartY, int quartZ) {return registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);}
 
     private static final class Generated {
         static final Class<? extends LevelStub> TYPE = new ByteBuddy()

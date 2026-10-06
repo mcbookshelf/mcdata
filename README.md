@@ -39,7 +39,7 @@ Replace `<version>` with the desired Minecraft version, e.g. `1.21.7`.
 | `jump_factor` | `Block.getJumpFactor()` | Multiplier on jump velocity when standing on it. |
 | `speed_factor` | `Block.getSpeedFactor()` | Multiplier on movement speed when standing on it. |
 | `instrument` | `BlockState.instrument()` | Sound event played by a note block above it. |
-| `sounds` | `BlockState.getSoundType()` | Sound events for `break`, `hit`, `fall`, `place` and `step`. |
+| `sounds` | `BlockState.getSounds()` | Sound events for `break`, `hit`, `fall`, `place` and `step` (`minecraft:intentionally_empty` if the block has none). |
 | `default_properties` | `Block.defaultBlockState()` | Property values of the default state. |
 | `possible_properties` | `Block.getStateDefinition()` | Every value each property can take. |
 | `states` | | One entry per block state, described below. |

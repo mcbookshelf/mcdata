@@ -4,12 +4,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.sounds.BlockSoundSet;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateHolder;
@@ -26,23 +30,23 @@ import java.util.Optional;
 
 public class BlockExtractor {
 
-    public static void generateBlockData(Path output) throws IOException {
+    public static void generateBlockData(Level level, Path output) throws IOException {
         System.out.println("Generating block data...");
         Files.createDirectories(output);
 
-        JsonObject data = extractBlocks(new JsonObject());
+        JsonObject data = extractBlocks(level, new JsonObject());
         Main.writeJsonToFile(output.resolve("data.json"), data, true);
         Main.writeJsonToFile(output.resolve("data.min.json"), data, false);
     }
 
-    private static JsonObject extractBlocks(JsonObject data) {
+    private static JsonObject extractBlocks(Level level, JsonObject data) {
         BuiltInRegistries.BLOCK.listElements().forEach((reference) ->
-            data.add(reference.getRegisteredName(), extractBlockData(reference.value()))
+            data.add(reference.getRegisteredName(), extractBlockData(level, reference.value()))
         );
         return data;
     }
 
-    private static JsonObject extractBlockData(Block block) {
+    private static JsonObject extractBlockData(Level level, Block block) {
         JsonObject data = new JsonObject();
         BlockState state = block.defaultBlockState();
         VoxelShape shape = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
@@ -61,7 +65,7 @@ public class BlockExtractor {
         data.addProperty("speed_factor", block.getSpeedFactor());
         data.addProperty("instrument", state.instrument().getSoundEvent().getRegisteredName());
 
-        data.add("sounds", extractBlockSounds(state.getSoundType(), new JsonObject()));
+        data.add("sounds", extractBlockSounds(state.getSounds(level), new JsonObject()));
         data.add("default_properties", extractStateProperties(state, new JsonObject()));
         data.add("possible_properties", extractBlockProperties(block, new JsonObject()));
 
@@ -85,13 +89,17 @@ public class BlockExtractor {
         return properties;
     }
 
-    private static JsonObject extractBlockSounds(SoundType sound, JsonObject sounds) {
-        sounds.addProperty("break", sound.getBreakSound().location().toString());
-        sounds.addProperty("hit", sound.getHitSound().location().toString());
-        sounds.addProperty("fall", sound.getFallSound().location().toString());
-        sounds.addProperty("place", sound.getPlaceSound().location().toString());
-        sounds.addProperty("step", sound.getStepSound().location().toString());
+    private static JsonObject extractBlockSounds(BlockSoundSet sound, JsonObject sounds) {
+        sounds.addProperty("break", soundName(sound.breakSound()));
+        sounds.addProperty("hit", soundName(sound.hitSound()));
+        sounds.addProperty("fall", soundName(sound.fallSound()));
+        sounds.addProperty("place", soundName(sound.placeSound()));
+        sounds.addProperty("step", soundName(sound.stepSound()));
         return sounds;
+    }
+
+    private static String soundName(Optional<Holder<SoundEvent>> sound) {
+        return sound.orElse(SoundEvents.EMPTY).value().location().toString();
     }
 
     private static JsonArray extractBlockStates(Block block, JsonArray states) {

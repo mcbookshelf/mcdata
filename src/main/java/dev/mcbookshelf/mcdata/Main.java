@@ -48,7 +48,7 @@ public class Main {
 
         Level level = LevelStub.create(worldStem.registries().compositeAccess());
 
-        BlockExtractor.generateBlockData(output.resolve("blocks"));
+        BlockExtractor.generateBlockData(level, output.resolve("blocks"));
         EntityExtractor.generateEntityData(level, output.resolve("entities"));
 
         worldStem.close();

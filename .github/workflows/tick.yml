@@ -34,7 +34,7 @@ jobs:
     if: ${{ needs.check.outputs.update == 'true' }}
     strategy:
       matrix:
-        branch: [v1, legacy]
+        branch: [v1]
     uses: ./.github/workflows/run.yml
     with:
       branch: ${{ matrix.branch }}

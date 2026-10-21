@@ -7,7 +7,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.EmptyBlockGetter;
@@ -99,7 +98,7 @@ public class BlockExtractor {
     }
 
     private static String soundName(Optional<Holder<SoundEvent>> sound) {
-        return sound.orElse(SoundEvents.EMPTY).value().location().toString();
+        return sound.map(event -> event.value().location().toString()).orElse("minecraft:intentionally_empty");
     }
 
     private static JsonArray extractBlockStates(Block block, JsonArray states) {

@@ -49,7 +49,7 @@ Each entry of `states` has:
 | Field | Vanilla source | Meaning |
 | --- | --- | --- |
 | `properties` | | Property values of this state. |
-| `fluid` | `BlockState.getFluidState()` | The fluid's `id` and its properties (`falling`, `level`), or `{}` if there is none. |
+| `fluid` | `BlockState.getFluidState()` | The fluid's `id` and its properties (`source`, `level`), or `{}` if there is none. |
 | `shape` | `BlockState.getShape()` | Outline shape, used for targeting. |
 | `collision_shape` | `BlockState.getCollisionShape()` | Collision shape, used for movement. |
 | `luminance` | `BlockState.getLightEmission()` | Light level it emits, from `0` to `15`. |

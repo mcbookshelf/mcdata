@@ -48,7 +48,7 @@ public abstract class LevelStub extends Level {
     }
 
     public LevelStub(RegistryAccess.Frozen registries) {
-        super(LEVEL_DATA, Level.OVERWORLD, registries, dimensionType(registries), false, false, 0);
+        super(LEVEL_DATA, Level.OVERWORLD, registries, dimensionType(registries), false, 0);
     }
 
     @Override public ChunkSource getChunkSource() {return CHUNK_SOURCE;}

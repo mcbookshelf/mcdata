@@ -1,0 +1,100 @@
+name: watch
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Force a bump to a specific Minecraft version
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v7
+
+      - name: find new minecraft version
+        id: find
+        env:
+          FORCED: ${{ inputs.version }}
+        run: |
+          meta=https://meta.fabricmc.net/v2/versions
+          version="${FORCED:-$(curl -fsS "$meta/game" | jq -r '.[0].version')}"
+          current=$(grep '^version=' gradle.properties | cut -d= -f2)
+
+          if [ "$version" = "$current" ]; then
+            echo "already on minecraft $current"
+            exit 0
+          fi
+          # Never overwrite a bump branch: it may hold fixes pushed by hand
+          if git ls-remote --exit-code origin "refs/heads/bump/$version" > /dev/null; then
+            echo "bump/$version already exists"
+            exit 0
+          fi
+
+          # Fabric meta answers 400 for a version it does not know yet
+          loaders=$(curl -fsS "$meta/loader/$version" || echo '[]')
+          # Loaders come newest-first, betas included, so prefer the newest stable one
+          loader=$(echo "$loaders" | jq -r '(map(select(.loader.stable)) + .)[0].loader.version // empty')
+          if [ -z "$loader" ]; then
+            echo "fabric loader does not support minecraft $version yet, retrying on a later watch"
+            exit 0
+          fi
+
+          echo "new minecraft version: $version (loader $loader)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "loader=$loader" >> "$GITHUB_OUTPUT"
+
+      - name: bump gradle.properties
+        if: steps.find.outputs.version
+        env:
+          VERSION: ${{ steps.find.outputs.version }}
+          LOADER: ${{ steps.find.outputs.loader }}
+        run: |
+          sed -i -e "s/^version=.*/version=$VERSION/" \
+            -e "s/^loader_version=.*/loader_version=$LOADER/" gradle.properties
+          git diff
+
+      - name: mint bot token
+        if: steps.find.outputs.version
+        id: bot
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      # The bot token, unlike GITHUB_TOKEN, lets the pull request trigger the ci workflow
+      - name: open pull request
+        if: steps.bot.outputs.token
+        id: pr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.bot.outputs.token }}
+          branch: bump/${{ steps.find.outputs.version }}
+          commit-message: "fix: ${{ steps.find.outputs.version }} builds"
+          title: "fix: ${{ steps.find.outputs.version }} builds"
+          body: |
+            Automated bump to Minecraft **${{ steps.find.outputs.version }}** (fabric-loader ${{ steps.find.outputs.loader }}).
+
+            If ci fails, push the fixes to this branch; `loom_version` is not bumped automatically,
+            check it against <https://fabricmc.net/develop> if the build misbehaves.
+
+            Merging publishes the `v1/${{ steps.find.outputs.version }}` tag.
+          committer: mcbookshelf[bot] <mcbookshelf[bot]@users.noreply.github.com>
+          author: mcbookshelf[bot] <mcbookshelf[bot]@users.noreply.github.com>
+
+      - name: enable auto-merge
+        if: steps.pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ steps.bot.outputs.token }}
+        run: |
+          # The required ci check gates the merge, so a red PR waits for a human
+          gh pr merge "${{ steps.pr.outputs.pull-request-number }}" \
+            --squash --auto --repo "$GITHUB_REPOSITORY"
